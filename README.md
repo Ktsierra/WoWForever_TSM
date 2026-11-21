@@ -8,6 +8,14 @@ If you have issues while importing, do a "/reload" or "/script ReloadUI();". Che
 If you need a quick video (No sound) of how to import / setup the TSM from scratch, [click here](https://youtu.be/-iwthyf1_o0).
 
 # Changes to the Setup
+> 21/11/2026
+> - Added 1 missing item from consumes group
+> - Added 1 missing item from patterns group
+> - Added 1 missing item from crafting group
+> - Added BMAH Sub-group to Misc > Companion for tiny bronze whelp
+> - Added tiny bronze whelp to group
+> - Added 80 or so missing items to non-crafted xmog groups
+
 > 19/11/2026
 > - Backport from Retail groups
 > - Error Cleanups
