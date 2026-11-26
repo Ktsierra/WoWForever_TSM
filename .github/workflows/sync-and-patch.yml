@@ -1,0 +1,51 @@
+name: Sync upstream and rebuild
+
+on:
+  schedule:
+    - cron: "17 9 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "Export/**"
+      - "tools/**"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-and-patch
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync fork with upstream
+        if: github.event_name != 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh repo sync "${{ github.repository }}" --branch main
+
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Rebuild Patched strings
+        run: python tools/patch.py
+
+      - name: Commit if changed
+        run: |
+          if [ -n "$(git status --porcelain -- Patched)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+            git add -A Patched
+            git commit -m "Rebuild Patched strings"
+            git push
+          else
+            echo "Patched/ already up to date"
+          fi
