@@ -2,7 +2,7 @@
   "_about": "Changes applied on top of the upstream strings in Export/. Run `python tools/patch.py` after editing; output goes to Patched/.",
 
   "operations": {
-    "_about": "Field overrides for operations, by module then operation name. Rule used: no floor under 60%, low-volume items (patterns, xmog) at 70%.",
+    "_about": "Field overrides for upstream operations, by module then operation name. Rule used: no floor under 60%, low-volume items (patterns, xmog) at 70%.",
     "Auctioning": {
       "Sell Pattern & Plans": { "minPrice": "70% min(DBMarket, DBRegionMarketAvg)" },
       "Sell Xmog & Gear":     { "minPrice": "70% min(DBMarket, DBRegionMarketAvg)" },
@@ -12,13 +12,88 @@
     }
   },
 
+  "new_operations": {
+    "_about": "Operations upstream doesn't ship. Every field is listed so TSM doesn't reset anything on import. Mailing can't be imported or exported by TSM, so it's set up in game.",
+    "Sniper": {
+      "Snipe Deals": {
+        "_about": "Flag listings under 60% of the lower of realm/region market, or under vendor price.",
+        "belowPrice": "max(vendorsell, 60% min(DBMarket, DBRegionMarketAvg))"
+      }
+    },
+    "Shopping": {
+      "Buy Below Market": {
+        "_about": "Group searches only show listings at or under 80% of the lower market value. No restock cap.",
+        "restockQuantity": "0",
+        "maxPrice": "80% min(DBMarket, DBRegionMarketAvg)",
+        "showAboveMaxPrice": false,
+        "restockSources": { "alts": false, "auctions": false, "bank": false, "guild": false }
+      }
+    },
+    "Vendoring": {
+      "Vendor Junk": {
+        "_about": "Sell to a merchant only when the AH value is under 125% of vendor price. Items with no price data are never sold (fallback 999999g). Soulbound items are skipped.",
+        "sellAfterExpired": "0",
+        "sellSoulbound": false,
+        "keepQty": "0",
+        "restockQty": "0",
+        "restockSources": { "alts": false, "ah": false, "bank": false, "guild": false, "alts_ah": false, "mail": false },
+        "enableBuy": false,
+        "enableSell": true,
+        "vsMarketValue": "first(DBMarket, DBRegionMarketAvg, 999999g)",
+        "vsMaxMarketValue": "125% vendorsell",
+        "vsDestroyValue": "Destroy",
+        "vsMaxDestroyValue": "0c"
+      }
+    },
+    "Crafting": {
+      "Craft Gear": {
+        "_about": "Crafted gear: keep 2 on hand, queue only when short by 1+, and only if profit is at least max(5g, 20% of craft cost).",
+        "minRestock": "1",
+        "maxRestock": "2",
+        "minProfit": "max(5g, 20% crafting)",
+        "craftPriceMethod": ""
+      },
+      "Craft Supplies": {
+        "_about": "Bars, parts, consumables, bags: keep 20 on hand, queue in batches of 5+, only if profit is at least max(1g, 15% of craft cost).",
+        "minRestock": "5",
+        "maxRestock": "20",
+        "minProfit": "max(1g, 15% crafting)",
+        "craftPriceMethod": ""
+      }
+    },
+    "Warehousing": {
+      "Move All": {
+        "_about": "Bank <-> bags moves the whole stack, nothing kept behind. Used on the bank alt to pull everything for posting and bank leftovers.",
+        "moveQuantity": "0",
+        "keepBagQuantity": "0",
+        "keepBankQuantity": "0",
+        "restockQuantity": "0",
+        "stackSize": "0",
+        "restockKeepBankQuantity": "0",
+        "restockStackSize": "0"
+      }
+    }
+  },
+
   "assign": {
-    "_about": "Give a group that ships without operations one that already exists in another upstream file.",
-    "xmogCrafted.txt": { "Auctioning": "Sell Xmog & Gear" }
+    "_about": "Operations to put on each file's top-level group (subgroups inherit). \"*\" applies to every file except those in leave_unassigned. A subgroup that overrides a module upstream is left alone.",
+    "*": {
+      "Sniper": "Snipe Deals",
+      "Shopping": "Buy Below Market",
+      "Warehousing": "Move All"
+    },
+    "materials.txt":         { "Crafting": "Craft Supplies" },
+    "consumables.txt":       { "Crafting": "Craft Supplies" },
+    "miscellaneous.txt":     { "Crafting": "Craft Supplies" },
+    "xmogCrafted.txt":       { "Auctioning": "Sell Xmog & Gear", "Crafting": "Craft Gear", "Vendoring": "Vendor Junk" },
+    "xmogLooted_a-j.txt":    { "Vendoring": "Vendor Junk" },
+    "xmogLooted_k-z.txt":    { "Vendoring": "Vendor Junk" },
+    "xmogStarterShirts.txt": { "Vendoring": "Vendor Junk" },
+    "xmogVendor.txt":        { "Vendoring": "Vendor Junk" }
   },
 
   "leave_unassigned": {
-    "_about": "Groups kept with no operations on purpose, so TSM never posts, mails or vendors them.",
+    "_about": "Files kept with no operations at all, so TSM never posts, snipes, vendors or moves them.",
     "z - lockboxes.txt": "Rogue: opened with Pick Lock, never sold"
   }
 }
