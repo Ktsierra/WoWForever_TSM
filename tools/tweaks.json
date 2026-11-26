@@ -1,0 +1,24 @@
+{
+  "_about": "Changes applied on top of the upstream strings in Export/. Run `python tools/patch.py` after editing; output goes to Patched/.",
+
+  "operations": {
+    "_about": "Field overrides for operations, by module then operation name. Rule used: no floor under 60%, low-volume items (patterns, xmog) at 70%.",
+    "Auctioning": {
+      "Sell Pattern & Plans": { "minPrice": "70% min(DBMarket, DBRegionMarketAvg)" },
+      "Sell Xmog & Gear":     { "minPrice": "70% min(DBMarket, DBRegionMarketAvg)" },
+      "Sell Misc":            { "minPrice": "60% min(DBMarket, DBRegionMarketAvg)" },
+      "Sell Quest Item":      { "minPrice": "60% min(DBMarket, DBRegionMarketAvg)" },
+      "Sell Consumables":     { "minPrice": "60% min(DBMarket, DBRegionMarketAvg)" }
+    }
+  },
+
+  "assign": {
+    "_about": "Give a group that ships without operations one that already exists in another upstream file.",
+    "xmogCrafted.txt": { "Auctioning": "Sell Xmog & Gear" }
+  },
+
+  "leave_unassigned": {
+    "_about": "Groups kept with no operations on purpose, so TSM never posts, mails or vendors them.",
+    "z - lockboxes.txt": "Rogue: opened with Pick Lock, never sold"
+  }
+}
