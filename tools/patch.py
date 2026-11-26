@@ -84,7 +84,7 @@ def wanted_for(fname, tweaks):
     return wanted
 
 
-def assign(values, exports, new_ops, fname, wanted, log):
+def assign(values, exports, new_ops, fname, wanted, sub_wanted, log):
     ops = values[I_OPS]
     for module in MODULES:
         ops.setdefault(module, tc.LuaTable())
@@ -121,6 +121,33 @@ def assign(values, exports, new_ops, fname, wanted, log):
             count += 1
         log.append(f"assigned {mod_name} / {op_name} to {count} of {len(values[I_GROUPS])} group(s)")
 
+    for sub_name, by_module in sub_wanted.items():
+        sub = b(sub_name)
+        if sub not in values[I_GROUPS]:
+            raise SystemExit(f"{fname}: subgroup {sub_name!r} not found")
+        for mod_name, op_name in strip_notes(by_module).items():
+            module, op = b(mod_name), b(op_name)
+            if module not in MODULES:
+                raise SystemExit(f"{fname}: {mod_name} operations can't be imported by TSM")
+            if op not in ops[module]:
+                settings, src = find_operation(exports, new_ops, module, op)
+                if settings is None:
+                    raise SystemExit(f"{fname}: operation {mod_name} / {op_name} not found")
+                ops[module][op] = settings
+                log.append(f"added operation {mod_name} / {op_name} (from {src})")
+            # Set it on the subgroup (override) and list it on its children, like TSM does.
+            for path in values[I_GROUPS]:
+                if path == sub or path.startswith(sub + b"`"):
+                    entry = group_ops[path][module]
+                    if path != sub and entry.get(b"override"):
+                        continue
+                    for k in [k for k in entry if isinstance(k, int)]:
+                        del entry[k]
+                    entry[1] = op
+                    if path == sub:
+                        entry[b"override"] = True
+            log.append(f"set {mod_name} / {op_name} on subgroup {sub_name!r}")
+
     # Drop operations that no group references any more.
     for module in MODULES:
         used = {name for e in group_ops.values() if module in e
@@ -156,9 +183,10 @@ def main():
         for op_name in strip_notes(by_name):
             if find_operation(exports, {}, b(mod_name), b(op_name))[0] is None:
                 raise SystemExit(f"tweaks.json: operation {mod_name} / {op_name} not found in any Export file")
-    for fname in strip_notes(tweaks.get("assign", {})):
-        if fname != "*" and fname not in exports:
-            raise SystemExit(f"tweaks.json: assign target {fname} not found in Export/")
+    for section in ("assign", "subgroups"):
+        for fname in strip_notes(tweaks.get(section, {})):
+            if fname != "*" and fname not in exports:
+                raise SystemExit(f"tweaks.json: {section} target {fname} not found in Export/")
 
     PATCHED.mkdir(exist_ok=True)
     stale = []
@@ -166,8 +194,9 @@ def main():
         values = copy.deepcopy(original)
         log = []
         wanted = wanted_for(fname, tweaks)
-        if wanted:
-            assign(values, exports, new_ops, fname, wanted, log)
+        sub_wanted = strip_notes(strip_notes(tweaks.get("subgroups", {})).get(fname, {}))
+        if wanted or sub_wanted:
+            assign(values, exports, new_ops, fname, wanted, sub_wanted, log)
         override_operations(values, tweaks.get("operations", {}), log)
 
         if values == original:

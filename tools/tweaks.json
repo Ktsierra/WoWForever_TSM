@@ -86,10 +86,17 @@
     "consumables.txt":       { "Crafting": "Craft Supplies" },
     "miscellaneous.txt":     { "Crafting": "Craft Supplies" },
     "xmogCrafted.txt":       { "Auctioning": "Sell Xmog & Gear", "Crafting": "Craft Gear", "Vendoring": "Vendor Junk" },
-    "xmogLooted_a-j.txt":    { "Vendoring": "Vendor Junk" },
-    "xmogLooted_k-z.txt":    { "Vendoring": "Vendor Junk" },
-    "xmogStarterShirts.txt": { "Vendoring": "Vendor Junk" },
-    "xmogVendor.txt":        { "Vendoring": "Vendor Junk" }
+    "xmogLooted_a-j.txt":    { "Crafting": "Craft Gear", "Vendoring": "Vendor Junk" },
+    "xmogLooted_k-z.txt":    { "Crafting": "Craft Gear", "Vendoring": "Vendor Junk" },
+    "xmogStarterShirts.txt": { "Crafting": "Craft Gear", "Vendoring": "Vendor Junk" },
+    "xmogVendor.txt":        { "Crafting": "Craft Gear", "Vendoring": "Vendor Junk" }
+  },
+
+  "subgroups": {
+    "_about": "Give a subgroup its own operation (sets override, so it beats what the top-level group or upstream set). Children inherit it.",
+    "miscellaneous.txt": {
+      "Toy`1) Profession": { "Crafting": "Craft Gear" }
+    }
   },
 
   "leave_unassigned": {

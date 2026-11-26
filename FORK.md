@@ -27,10 +27,10 @@ Percentages are of `min(DBMarket, DBRegionMarketAvg)`. Below the min, these oper
 | Buy Below Market | Shopping | Group searches only show listings at or under 80% of that market value | All groups except lockboxes |
 | Move All | Warehousing | Bank ↔ bags moves whole stacks, keeps nothing behind | All groups except lockboxes |
 | Craft Supplies | Crafting | Keep 20, queue in batches of 5+, profit ≥ max(1g, 15% of cost) | Materials, Consumables, Miscellaneous |
-| Craft Gear | Crafting | Keep 2, queue when short, profit ≥ max(5g, 20% of cost) | Xmog & Gear Crafted |
+| Craft Gear | Crafting | Keep 2, queue when short, profit ≥ max(5g, 20% of cost) | All Xmog & Gear groups, Miscellaneous "Toy`1) Profession" |
 | Vendor Junk | Vendoring | Sells to a merchant only when AH value < 125% of vendor price. Never sells items with no price data or soulbound items | All Xmog & Gear groups |
 
-Crafting restock only queues recipes you know, so it covers Engineering now and Leatherworking later (Xmog Crafted has a Leatherworking subgroup, Consumables has armor kits). Subgroups that upstream deliberately overrides (Consumables "Lure" for Auctioning, Miscellaneous "Toy`1) Profession" for Crafting) are left alone.
+Every item except patterns and lockboxes has a Crafting operation. That's safe because restock only queues recipes you know, so it covers Engineering now and Leatherworking later. Craft Gear is on the looted and vendor xmog groups too, because upstream files some crafted gear there (Flying Tiger Goggles is in Looted A-J). Upstream opted Miscellaneous "Toy`1) Profession" (Engineering toys) out of crafting; it's switched back on here with Craft Gear. Consumables "Lure" keeps upstream's no-posting override.
 
 `z - lockboxes.txt` has no operations at all, so TSM never posts, snipes, vendors or moves lockboxes.
 
@@ -73,6 +73,7 @@ python tools/patch.py --check  # exit 1 if Patched/ is out of date
 - `operations`: change fields on upstream operations
 - `new_operations`: full definitions for operations upstream doesn't ship
 - `assign`: which operation each file's top-level group gets (`"*"` = every file not in `leave_unassigned`)
+- `subgroups`: give one subgroup its own operation (overrides the top-level group and upstream)
 - `leave_unassigned`: files that get no operations at all
 
 If upstream renames an operation listed in `tweaks.json`, the script stops with an error instead of silently skipping it.
